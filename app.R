@@ -18,11 +18,11 @@ sub_page <- function() {
 ui <- fluidPage(
   tags$ul(
     tags$li(tags$a("Main page", href = "/")),
-    tags$li(tags$a("Sub page", href = "/#!/subpage"))
+    tags$li(tags$a("Sub page", href = "/#!/subpage")) # This works locally, but can't find the URL for this when deployed
   ),
   router_ui(
-    route("/", main_page()), # want this at
-    route("subpage", sub_page()) # want this at
+    route("/", main_page()), # This appears at https://cjrace.shinyapps.io/shiny-routing-reprex/ after a slight delay and redirecting to https://cjrace.shinyapps.io/shiny-routing-reprex/_w_9c312d7b/#!/
+    route("subpage", sub_page())
   )
 )
 
