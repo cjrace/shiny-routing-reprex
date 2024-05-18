@@ -1,0 +1,12 @@
+name: shiny-routing-reprex
+title: shiny-routing-reprex
+username: cjrace
+account: cjrace
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 12026363
+bundleId: 8631430
+url: https://cjrace.shinyapps.io/shiny-routing-reprex/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
