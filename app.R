@@ -1,27 +1,41 @@
 library(shiny)
-library(shiny.router)
-
-main_page <- function() {
-  div(h1("Main page"), p("Some main text."))
-}
-
-sub_page <- function() {
-  div(h1("Sub page"), p("Some subtext."))
-}
 
 ui <- fluidPage(
   tags$ul(
-    tags$li(tags$a("Main page", href = "/")),
-    tags$li(tags$a("Sub page", href = "/#!/subpage")) # This works locally, but takes me to https://cjrace.shinyapps.io/#!/subpage when deployed
+    tags$li(actionLink("main_page", "Main page")),
+    tags$li(actionLink("sub_page", "Sub page"))
   ),
-  router_ui(
-    route("/", main_page()), # This appears after a slight delay and redirecting to https://cjrace.shinyapps.io/shiny-routing-reprex/_w_9c312d7b/#!/
-    route("subpage", sub_page()) # This is showing at https://cjrace.shinyapps.io/shiny-routing-reprex/_w_ac80e61b/#!/subpage
+  tabsetPanel(
+    id = "switcher",
+    type = "hidden",
+    tabPanelBody(value = "main", div(h1("Main page"), p("Some main text."))),
+    tabPanelBody(value = "sub", div(h1("Sub page"), p("Some subtext.")))
   )
 )
 
 server <- function(input, output, session) {
-  shiny.router::router_server()
+  observeEvent(input$main_page, {
+    updateTabsetPanel(inputId = "switcher", selected = "main")
+  })
+  observeEvent(input$sub_page, {
+    updateTabsetPanel(inputId = "switcher", selected = "sub")
+  })
+  observeEvent(getQueryString(session)$page, {
+    currentQueryString <- getQueryString(session)$page # alternative: parseQueryString(session$clientData$url_search)$page
+    if(is.null(input$switcher) || !is.null(currentQueryString) && currentQueryString != input$switcher){
+      freezeReactiveValue(input, "switcher")
+      updateTabsetPanel(session, "switcher", selected = currentQueryString)
+    }
+  }, priority = 1)
+  
+  observeEvent(input$switcher, {
+    currentQueryString <- getQueryString(session)$page # alternative: parseQueryString(session$clientData$url_search)$page
+    pushQueryString <- paste0("?page=", input$switcher)
+    if(is.null(currentQueryString) || currentQueryString != input$switcher){
+      freezeReactiveValue(input, "switcher")
+      updateQueryString(pushQueryString, mode = "push", session)
+    }
+  }, priority = 0)
 }
 
 shinyApp(ui = ui, server = server)
